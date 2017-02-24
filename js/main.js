@@ -35,6 +35,13 @@ function createTemplate(carOptions, hbTemplate) {
 	}
 }
 
+function createSummary() {
+	for(var q=0; q<carSelection.length; q++)
+	{
+		
+	}
+}
+
 function setCarSelection(carOption, optionChoice, optionPrice) {
 	carSelection[carOption]["choice"] = optionChoice;
 	carSelection[carOption]["price"] = optionPrice;
@@ -60,7 +67,7 @@ $('.navigation li').on('click', function() {
 			createTemplate(packageOptions, '#package-options-template');
 			break;
 		case 'summary':
-
+			createTemplate(carSelection)
 			break;
 	}
 });
