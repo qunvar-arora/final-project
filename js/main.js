@@ -24,6 +24,9 @@ var carSelection = {
 	package: {choice: 'Not Selected', price: 0}
 };
 
+var vehicleDisplay;
+var costDisplay;
+
 function createTemplate(carOptions, hbTemplate) {
 	for(var q=0; q<carOptions.length; q++)
 	{
@@ -36,10 +39,12 @@ function createTemplate(carOptions, hbTemplate) {
 }
 
 function createSummary() {
-	for(var q=0; q<carSelection.length; q++)
-	{
-		
-	}
+	
+		var source = $('#summary-options-template').html();
+		var template = Handlebars.compile(source);
+		var newItemHTML = template(carSelection);
+		$('#options-display').append(newItemHTML);
+	
 }
 
 function setCarSelection(carOption, optionChoice, optionPrice) {
@@ -67,7 +72,7 @@ $('.navigation li').on('click', function() {
 			createTemplate(packageOptions, '#package-options-template');
 			break;
 		case 'summary':
-			createTemplate(carSelection)
+			createSummary();
 			break;
 	}
 });
@@ -77,15 +82,20 @@ $('#options-display').on('click', 'div', function(e) {
 	switch($(this).data("panel")){
 		case 'vehicle':
 			setCarSelection("vehicle", $(this).data("option"), $(this).data("price"));
-			//console.log(carSelection["vehicle"]["choice"] + carSelection["vehicle"]["price"]);
+			vehicleDisplay = 'assets/' + $(this).data("option") + '.jpg';
+			costDisplay = $(this).data("price");
+			$('.vehicle-display').attr('src', vehicleDisplay);
+			$('.cost-display').text(costDisplay);
 			break;
 		case 'color':
 			setCarSelection("color", $(this).data("option"), $(this).data("price"));
-			//console.log(carSelection["color"]["choice"] + carSelection["color"]["price"]);
+			vehicleDisplay = 'assets/' + carSelection["vehicle"]["choice"] + '-' + $(this).data("option") + '.jpg';
+			costDisplay = carSelection["vehicle"]["price"] + $(this).data("price");
+			$('.vehicle-display').attr('src', vehicleDisplay);
+			$('.cost-display').text(costDisplay);
 			break;
 		case 'package':
 			setCarSelection("package", $(this).data("option"), $(this).data("price"));
-			//console.log(carSelection["package"]["choice"] + carSelection["package"]["price"]);
 			break;
 	}
 
