@@ -1,3 +1,63 @@
+function initMap() {
+
+	navigator.geolocation.getCurrentPosition(function(position){
+		var userLocation = {
+			lat: position.coords.latitude,
+			lng: position.coords.longitude
+        };
+        console.log(userLocation.lat);
+        console.log(userLocation.lng);
+
+        var map = new google.maps.Map(document.getElementById('map'),{
+			center: userLocation,
+	        zoom: 10,
+	       	scrollwheel: false
+		});
+
+		infowindow = new google.maps.InfoWindow();
+        var service = new google.maps.places.PlacesService(map);
+        service.nearbySearch({
+          location: userLocation,
+          radius: 10000,
+          type: ['car_dealer']
+        }, callback);
+
+        function callback(results, status) {
+			if (status === google.maps.places.PlacesServiceStatus.OK) {
+				for (var i = 0; i < results.length; i++) {
+					createMarker(results[i]);
+				}
+			}
+		}
+
+		function createMarker(place) {
+			var placeLoc = place.geometry.location;
+			var marker = new google.maps.Marker({
+				map: map,
+				position: place.geometry.location
+			});
+
+			google.maps.event.addListener(marker, 'click', function() {
+				infowindow.setContent(place.name);
+				infowindow.open(map, this);
+			});
+		}
+	});	
+}
+
+
+// Initialize Firebase
+var config = {
+		apiKey: "AIzaSyCCMAVln0hXtsGCl7LHIOskjUsK27WRVo0",
+		authDomain: "jsc-final.firebaseapp.com",
+		databaseURL: "https://jsc-final.firebaseio.com",
+		storageBucket: "jsc-final.appspot.com",
+		messagingSenderId: "56709765726"
+};
+firebase.initializeApp(config);
+
+var database = firebase.database();
+
 var vehicleOptions = [
 	{choice: 'cadenza', price: 35000},
 	{choice: 'forte', price: 20000},
@@ -47,6 +107,10 @@ function createSummary() {
 	
 }
 
+function numberWithCommas(x) {
+    return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+}
+
 function setCarSelection(carOption, optionChoice, optionPrice) {
 	carSelection[carOption]["choice"] = optionChoice;
 	carSelection[carOption]["price"] = optionPrice;
@@ -83,19 +147,21 @@ $('#options-display').on('click', 'div', function(e) {
 		case 'vehicle':
 			setCarSelection("vehicle", $(this).data("option"), $(this).data("price"));
 			vehicleDisplay = 'assets/' + $(this).data("option") + '.jpg';
-			costDisplay = $(this).data("price");
+			costDisplay = numberWithCommas($(this).data("price"));
 			$('.vehicle-display').attr('src', vehicleDisplay);
 			$('.cost-display').text(costDisplay);
 			break;
 		case 'color':
 			setCarSelection("color", $(this).data("option"), $(this).data("price"));
 			vehicleDisplay = 'assets/' + carSelection["vehicle"]["choice"] + '-' + $(this).data("option") + '.jpg';
-			costDisplay = carSelection["vehicle"]["price"] + $(this).data("price");
+			costDisplay = numberWithCommas(carSelection["vehicle"]["price"] + $(this).data("price"));
 			$('.vehicle-display').attr('src', vehicleDisplay);
 			$('.cost-display').text(costDisplay);
 			break;
 		case 'package':
 			setCarSelection("package", $(this).data("option"), $(this).data("price"));
+			costDisplay = numberWithCommas(carSelection["vehicle"]["price"] + carSelection["color"]["price"] + $(this).data("price"));
+			$('.cost-display').text(costDisplay);
 			break;
 	}
 

@@ -57,12 +57,29 @@
 
       <div class="col-md-8 demo-container">
         <img class="col-md-12 vehicle-display" src="">
+        <div class="col-md-3">
+          <form name>
+            <label>
+              Customer Name: <input type="text" name="customer">
+              <input type="submit" value="Save Vehicle">
+            </label>
+          </form>
+        </div>
+        <div class="col-md-9">
+          <div id="map"></div>
+        </div>
       </div>
+
+      
     </div>
   </div>
 
+  <!-- Firebase CDN -->
+  <script src="https://www.gstatic.com/firebasejs/live/3.0/firebase.js"></script>
   <script src="https://code.jquery.com/jquery-3.1.0.min.js"   integrity="sha256-cCueBR6CsyA4/9szpPfrX3s49M9vUU5BgtiJj06wt/s="   crossorigin="anonymous"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.0.5/handlebars.min.js"></script>
   <script src="js/main.js"></script>
+  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDy5wCt_12MNqwbV-VEkT7q6F5wOz51weo&libraries=places&callback=initMap" async defer></script>
+  
 </body>
 </html>
