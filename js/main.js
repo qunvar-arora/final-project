@@ -166,3 +166,21 @@ $('#options-display').on('click', 'div', function(e) {
 	}
 
 });
+
+$('#save-vehicle').on('submit', function(e){
+	e.preventDefault();
+
+	var userName = $('#customer').val();
+
+	var vehicleReference = database.ref('vehicles');
+
+	vehicleReference.push({
+		buyer: userName,
+		vehicle: carSelection["vehicle"]["choice"],
+		vehiclePrice: carSelection["vehicle"]["price"],
+		color: carSelection["color"]["choice"],
+		colorPrice: carSelection["color"]["price"],
+		package: carSelection["package"]["choice"],
+		packagePrice: carSelection["package"]["price"]
+	});
+});
