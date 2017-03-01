@@ -56,13 +56,15 @@
       </div>
 
       <div class="col-md-8 demo-container">
+        <h1 id="save-message"></h1>
         <img class="col-md-12 vehicle-display" src="">
         <div class="col-md-3">
-          <form id="save-vehicle">
-            <label>
-              Customer Name: <input type="text" name="customer" id="customer">
-              <input type="submit" value="Save Vehicle">
-            </label>
+          <form id="save-vehicle" class="form-group">
+              <label>
+                Customer Name: <input type="text" name="customer" id="customer">
+              </label>
+              <input type="submit" name="save" value="Save Vehicle">
+              <input type="submit" name="rebuild" value="Rebuild Saved Vehicle">
           </form>
         </div>
         <div class="col-md-9">

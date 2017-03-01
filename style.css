@@ -56,8 +56,8 @@
   background: url('assets/forte-silver.jpg');
 }
 
-input {
-  margin-top: 10px;
+input[type=submit] {
+  margin-bottom: 5px;
 }
 
 li span {

@@ -5,8 +5,6 @@ function initMap() {
 			lat: position.coords.latitude,
 			lng: position.coords.longitude
         };
-        console.log(userLocation.lat);
-        console.log(userLocation.lng);
 
         var map = new google.maps.Map(document.getElementById('map'),{
 			center: userLocation,
@@ -44,7 +42,6 @@ function initMap() {
 		}
 	});	
 }
-
 
 // Initialize Firebase
 var config = {
@@ -84,6 +81,8 @@ var carSelection = {
 	package: {choice: 'Not Selected', price: 0}
 };
 
+var saveOrBuild;
+var vehicleReference;
 var vehicleDisplay;
 var costDisplay;
 
@@ -116,6 +115,17 @@ function setCarSelection(carOption, optionChoice, optionPrice) {
 	carSelection[carOption]["price"] = optionPrice;
 }
 
+function setVehicleDisplay(){
+	if((carSelection["vehicle"]["choice"] !== 'Not Selected') && (carSelection["color"]["choice"] !== 'Not Selected')){
+		vehicleDisplay = 'assets/' + carSelection["vehicle"]["choice"] + '-' + carSelection["color"]["choice"] + '.jpg';
+	}
+	else if((carSelection["vehicle"]["choice"] !== 'Not Selected') && (carSelection["color"]["choice"] === 'Not Selected')){
+		vehicleDisplay = 'assets/' + carSelection["vehicle"]["choice"] + '.jpg';
+	}
+
+
+}
+
 createTemplate(vehicleOptions, '#vehicle-options-template');
 
 $('.navigation li').on('click', function() {
@@ -143,17 +153,20 @@ $('.navigation li').on('click', function() {
 
 $('#options-display').on('click', 'div', function(e) {
 	e.preventDefault();
+
+	$('#save-message').text('');
+
 	switch($(this).data("panel")){
 		case 'vehicle':
 			setCarSelection("vehicle", $(this).data("option"), $(this).data("price"));
-			vehicleDisplay = 'assets/' + $(this).data("option") + '.jpg';
+			setVehicleDisplay();
 			costDisplay = numberWithCommas($(this).data("price"));
 			$('.vehicle-display').attr('src', vehicleDisplay);
 			$('.cost-display').text(costDisplay);
 			break;
 		case 'color':
 			setCarSelection("color", $(this).data("option"), $(this).data("price"));
-			vehicleDisplay = 'assets/' + carSelection["vehicle"]["choice"] + '-' + $(this).data("option") + '.jpg';
+			setVehicleDisplay();
 			costDisplay = numberWithCommas(carSelection["vehicle"]["price"] + $(this).data("price"));
 			$('.vehicle-display').attr('src', vehicleDisplay);
 			$('.cost-display').text(costDisplay);
@@ -167,20 +180,68 @@ $('#options-display').on('click', 'div', function(e) {
 
 });
 
+$('#save-vehicle').find('input[type=submit]').on("click", function(e) {
+	console.log("saveOrBuild action to be fired!");
+	saveOrBuild = $(this).attr('name');
+	console.log(saveOrBuild);
+});
+
 $('#save-vehicle').on('submit', function(e){
 	e.preventDefault();
 
 	var userName = $('#customer').val();
 
-	var vehicleReference = database.ref('vehicles');
+	if(saveOrBuild === 'save'){
+		console.log("this is what should be firing " + userName);
 
-	vehicleReference.push({
-		buyer: userName,
-		vehicle: carSelection["vehicle"]["choice"],
-		vehiclePrice: carSelection["vehicle"]["price"],
-		color: carSelection["color"]["choice"],
-		colorPrice: carSelection["color"]["price"],
-		package: carSelection["package"]["choice"],
-		packagePrice: carSelection["package"]["price"]
-	});
+		vehicleReference = database.ref('vehicles');
+
+		vehicleReference.push({
+			buyer: userName,
+			vehicle: carSelection["vehicle"]["choice"],
+			vehiclePrice: carSelection["vehicle"]["price"],
+			color: carSelection["color"]["choice"],
+			colorPrice: carSelection["color"]["price"],
+			package: carSelection["package"]["choice"],
+			packagePrice: carSelection["package"]["price"]
+		});
+
+		setCarSelection("vehicle", 'Not Selected', 0);
+		setCarSelection("color", 'Not Selected', 0);
+		setCarSelection("package", 'Not Selected', 0);
+
+		console.log("we still make it to this part of the save conditional");
+		$('#customer').val('');
+		$('.vehicle-display').attr('src', '');
+		$('#save-message').text('Vehicle saved successfully!');
+		
+	}
+	else if(saveOrBuild === 'rebuild'){
+		console.log("you will know if this is correct or wrong!");
+		var buyerExists = false;
+		
+		vehicleReference = database.ref('vehicles');
+		vehicleReference.on('value', function(snapshot){
+			var allVehicles = snapshot.val();
+
+			for(var car in allVehicles){
+				if(allVehicles[car].buyer === userName){
+					
+					setCarSelection("vehicle", allVehicles[car].vehicle, allVehicles[car].vehiclePrice);
+					setCarSelection("color", allVehicles[car].color, allVehicles[car].colorPrice);
+					setCarSelection("package", allVehicles[car].package, allVehicles[car].packagePrice);
+					setVehicleDisplay();
+					costDisplay = numberWithCommas(carSelection["vehicle"]["price"] + carSelection["color"]["price"] + carSelection["package"]["price"]);
+					$('.vehicle-display').attr('src', vehicleDisplay);
+					$('.cost-display').text(costDisplay);
+					$('#save-message').text("Saved Vehicle for " + allVehicles[car].buyer);
+					buyerExists = true;
+				}
+			}
+		});
+		
+		if(buyerExists === false){
+			$('#save-message').text('Saved Vehicle does not exist for this buyer!');
+		}
+	}
 });
